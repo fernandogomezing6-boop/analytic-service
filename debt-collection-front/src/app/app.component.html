@@ -1,0 +1,72 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">C</span><span>CobraFlow</span></div>
+    <nav>
+      <a class="active" href="#"><span>▦</span> Asignación</a>
+      <a href="#"><span>⌁</span> Cartera</a>
+      <a href="#"><span>♙</span> Agentes</a>
+      <a href="#"><span>↗</span> Gestión</a>
+      <a href="#"><span>▥</span> Reportes</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-avatar">LR</div>
+      <div><strong>Laura Ramírez</strong><small>Administradora</small></div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div><p class="eyebrow">OPERACIONES</p><h1>Asignación de cartera</h1></div>
+      <div class="top-actions"><button class="icon-button">⌕</button><button class="icon-button notification">♧</button></div>
+    </header>
+
+    <section class="content">
+      <div class="metrics">
+        <article><span class="metric-label">Cartera asignable</span><strong>{{ 35245000 | currency:'COP':'symbol-narrow':'1.0-0' }}</strong><small>38 obligaciones</small></article>
+        <article><span class="metric-label">Pendiente de asignar</span><strong>{{ assignedValue() | currency:'COP':'symbol-narrow':'1.0-0' }}</strong><small>{{ selected().length }} seleccionadas</small></article>
+        <article class="danger"><span class="metric-label">Vencida</span><strong>{{ overdueValue() | currency:'COP':'symbol-narrow':'1.0-0' }}</strong><small>{{ overdueCount() }} obligaciones</small></article>
+        <article><span class="metric-label">Agentes disponibles</span><strong>4 de 5</strong><small>82% de capacidad</small></article>
+      </div>
+
+      <section class="workbench">
+        <div class="toolbar">
+          <div class="search"><span>⌕</span><input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar cliente, documento o concepto"></div>
+          <div class="filters">
+            @for (status of ['Todas', 'Vencida', 'Por vencer', 'Al día']; track status) {
+              <button [class.active]="statusFilter() === status" (click)="setStatus(status === 'Todas' ? 'Todas' : $any(status))">{{ status }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="assignment-bar">
+          <label><input type="checkbox" (change)="toggleAll($event)" [checked]="selected().length > 0 && selected().length === filteredDebts().length"> {{ selected().length }} seleccionadas</label>
+          <div>
+            <select [ngModel]="selectedAgent()" (ngModelChange)="selectedAgent.set($event)"><option *ngFor="let agent of agents" [value]="agent">{{ agent }}</option></select>
+            <button class="primary" [disabled]="selected().length === 0" (click)="assignSelected()">Asignar selección</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th></th><th>Deudor</th><th>Concepto</th><th>Saldo</th><th>Antigüedad</th><th>Estado</th><th>Agente</th><th></th></tr></thead>
+            <tbody>
+              @for (debt of filteredDebts(); track debt.id) {
+                <tr>
+                  <td><input type="checkbox" [(ngModel)]="debt.selected"></td>
+                  <td><strong>{{ debt.debtor }}</strong><small>{{ debt.document }} · Caso {{ debt.id }}</small></td>
+                  <td>{{ debt.concept }}</td>
+                  <td><strong>{{ debt.amount | currency:'COP':'symbol-narrow':'1.0-0' }}</strong></td>
+                  <td>{{ debt.days === 0 ? 'Hoy' : debt.days + ' días' }}</td>
+                  <td><span class="status" [ngClass]="debt.state === 'Vencida' ? 'overdue' : debt.state === 'Por vencer' ? 'soon' : 'current'">{{ debt.state }}</span></td>
+                  <td><span [class.unassigned]="debt.agent === 'Sin asignar'">{{ debt.agent }}</span></td>
+                  <td><button class="assign" (click)="assignOne(debt)">{{ debt.agent === 'Sin asignar' ? 'Asignar' : 'Reasignar' }}</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="table-footer"><span>Mostrando {{ filteredDebts().length }} de {{ debtList().length }} obligaciones</span><div><button disabled>‹</button><button class="page">1</button><button disabled>›</button></div></footer>
+      </section>
+    </section>
+  </main>
+</div>

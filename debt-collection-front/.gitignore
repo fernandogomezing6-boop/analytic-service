@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Archivos generados y compilación
+/dist
+/out-tsc
+/.angular
+
+# Logs y caché
+.npm
+/.sass-cache
+npm-debug.log
+yarn-error.log
+
+# Configuración de editores locales
+.vscode/
+.idea/
